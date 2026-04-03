@@ -331,9 +331,8 @@ class _HomeBody extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           const _ListenerSection(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           const _TalkRandomlyButton(),
-          const SizedBox(height: 20),
 
           const SizedBox(height: 20),
           const _FeatureBannerImage(),
@@ -345,7 +344,6 @@ class _HomeBody extends StatelessWidget {
           const SizedBox(height: 20),
           const _CorporateProgramsSection(),
           const SizedBox(height: 20),
-          const _SelfCareSection(),
         ],
       ),
     );
@@ -899,7 +897,7 @@ class _ListenerSection extends StatelessWidget {
             const Text(
               'Talk to a Listener',
               style: TextStyle(
-                fontSize: 10,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF1A1A2E),
               ),
@@ -912,7 +910,7 @@ class _ListenerSection extends StatelessWidget {
                     'See All',
                     style: TextStyle(
                       fontSize: 10,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
                       color: Color(0xFF2D6A9F),
                     ),
                   ),
@@ -923,7 +921,7 @@ class _ListenerSection extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 4),
+
         const Text(
           'Non-Judgemental & Anonymous',
           style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
@@ -1079,8 +1077,8 @@ class _ListenerCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 8,
-                  height: 8,
+                  width: 6,
+                  height: 6,
                   decoration: const BoxDecoration(
                     color: Color(0xFF3DD68C),
                     shape: BoxShape.circle,
@@ -1120,7 +1118,7 @@ class _TalkRandomlyButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 7), // 🔥 reduced height
           decoration: BoxDecoration(
             color: const Color(0xFF4A76A8), // 🔥 closer to image color
-            borderRadius: BorderRadius.circular(5), // 🔥 less rounded
+            borderRadius: BorderRadius.circular(4), // 🔥 less rounded
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.15), // 🔥 softer shadow
@@ -1268,7 +1266,7 @@ class _CareUnitsSection extends StatelessWidget {
               'Care Units',
               style: TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w400,
                 color: Color(0xFF1A1A2E),
               ),
             ),
@@ -1279,8 +1277,8 @@ class _CareUnitsSection extends StatelessWidget {
                   Text(
                     'See All',
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
                       color: Color(0xFF2D6A9F),
                     ),
                   ),
@@ -1291,10 +1289,10 @@ class _CareUnitsSection extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 4),
+
         const Text(
           'Specialized Care',
-          style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+          style: TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
         ),
         const SizedBox(height: 14),
         SizedBox(
@@ -1517,7 +1515,7 @@ class _CounsellingBannerCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 15,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w500,
                   color: Color(0xFF1A1A2E),
                 ),
               ),
@@ -1752,7 +1750,7 @@ class _CorporateProgramsSection extends StatelessWidget {
           'Corporate & Partnership Programs',
           style: TextStyle(
             fontSize: 18,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w500,
             color: Color(0xFF1A1A2E),
           ),
         ),
@@ -1773,86 +1771,98 @@ class _CorporateProgramsSection extends StatelessWidget {
             ],
           ),
           padding: const EdgeInsets.fromLTRB(18, 16, 12, 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          child: Stack(
             children: [
-              // Left content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title row with lock icon
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Flexible(
-                          child: Text(
-                            'SAP(Student Assistance Program)',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                              height: 1.3,
-                            ),
+              // Content column
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title row with lock icon
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          'SAP(Student Assistance Program)',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            height: 1.3,
                           ),
                         ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withAlpha(30),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Icon(
-                            Icons.lock_outline_rounded,
-                            size: 16,
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(30),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Icon(
+                          Icons.lock_outline_rounded,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  // Multi-line description
+                  const Text(
+                    'Early support to identify, guide and connect\nstudents facing emotional, behavioral, or\nmental health challenges.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFFBDD5EE),
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Unlock Now link
+                  GestureDetector(
+                    onTap: () {},
+                    child: Row(
+                      children: const [
+                        Text(
+                          'Unlock Now',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
                             color: Colors.white,
                           ),
+                        ),
+                        SizedBox(width: 6),
+                        Icon(
+                          Icons.arrow_forward,
+                          size: 15,
+                          color: Colors.white,
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Early support to identify, guide and connect students facing emotional, behavioral, or mental health challenges.',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFFBDD5EE),
-                        height: 1.45,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    // Unlock Now link
-                    GestureDetector(
-                      onTap: () {},
-                      child: Row(
-                        children: const [
-                          Text(
-                            'Unlock Now',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(width: 6),
-                          Icon(
-                            Icons.arrow_forward,
-                            size: 15,
-                            color: Colors.white,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              // Right illustration
-              SizedBox(
-                width: 90,
-                height: 110,
-                child: CustomPaint(painter: _SapIllustrationPainter()),
+              // Image positioned at bottom right corner
+              // ADJUST POSITION: Change these values to move the image
+              // left: X  - distance from left (use instead of right)
+              // right: X - distance from right edge
+              // top: X   - distance from top
+              // bottom: X - distance from bottom edge
+              Positioned(
+                right: -10, // <-- ADJUST: distance from right edge
+                bottom: -1, // <-- ADJUST: distance from bottom edge
+                // Removed top constraint so image can grow freely
+                child: SizedBox(
+                  width: 100, // <-- ADJUST: image width
+                  height: 100, // <-- ADJUST: image height
+                  child: Image.asset(
+                    'assets/coffe layer.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
             ],
           ),
@@ -1863,89 +1873,112 @@ class _CorporateProgramsSection extends StatelessWidget {
         // ── EAP Card (white) ──────────────────────────────────────────────
         Container(
           width: double.infinity,
+          margin: const EdgeInsets.all(0),
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(7),
             boxShadow: [
               BoxShadow(
-                color: const Color.fromRGBO(0, 0, 0, 0.07),
-                blurRadius: 12,
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
-          padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Icon + title row
+              // Top row: icon + title + description
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Green rounded icon box
+                  // Green icon box
                   Container(
-                    width: 46,
-                    height: 46,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
                       color: const Color(0xFFD6F0D6),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(5),
                     ),
                     child: const Icon(
                       Icons.psychology_outlined,
-                      color: Color(0xFF2E7D32),
-                      size: 26,
+                      color: Color(0xFF3A3A3A),
+                      size: 40,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text(
-                      'EAP(Employee Assistance Program)',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1A1A2E),
-                        height: 1.3,
-                      ),
+                  const SizedBox(width: 8),
+                  // Title + description
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        RichText(
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          text: const TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'EAP',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1A1A1A),
+                                ),
+                              ),
+                              TextSpan(
+                                text: '(Employee Assistance Program)',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.normal,
+                                  color: Color(0xFF1A1A1A),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Confidential support to help employees manage\nmental health, stress, and work-related\nchallenges.',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Color(0xFF555555),
+                            height: 1.2,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Confidential support to help employees manage mental health, stress, personal, and work-related challenges.',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFF6B7280),
-                  height: 1.45,
-                ),
-              ),
-              const SizedBox(height: 14),
-              // Start Journey button
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  width: double.infinity,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF3B6FA0),
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF3B6FA0).withAlpha(70),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+
+              const SizedBox(height: 16),
+
+              // Start Journey button - centered
+              Center(
+                child: SizedBox(
+                  width: 170,
+                  height: 35,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4A72A8),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      shape: const StadiumBorder(),
+                      elevation: 0,
+                    ),
+                    child: const Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Start Journey',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.3,
+                        ),
                       ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: const Text(
-                    'Start Journey',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                      letterSpacing: 0.2,
                     ),
                   ),
                 ),
@@ -1954,6 +1987,43 @@ class _CorporateProgramsSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ─── EAP INFO CHIP ────────────────────────────────────────────────────────────
+class _EAPInfoChip extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _EAPInfoChip({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 10, color: Color(0xFF9E9E9E)),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1A1A1A),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -2070,157 +2140,6 @@ class _SapIllustrationPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-// ─── SELF CARE SECTION ────────────────────────────────────────────────────────
-class _SelfCareSection extends StatelessWidget {
-  const _SelfCareSection();
-
-  static const List<String> _titles = [
-    'What to Expect?',
-    'What to Expect?',
-    'What to Expect?',
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Header row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Self care',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF1A1A2E),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {},
-              child: Row(
-                children: const [
-                  Text(
-                    'See All',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF2D6A9F),
-                    ),
-                  ),
-                  SizedBox(width: 4),
-                  Icon(Icons.arrow_forward, size: 15, color: Color(0xFF2D6A9F)),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 14),
-
-        // Horizontal scroll cards
-        SizedBox(
-          height: 210,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.only(right: 4),
-            itemCount: _titles.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (context, i) => _SelfCareCard(title: _titles[i]),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ─── SELF CARE CARD ───────────────────────────────────────────────────────────
-class _SelfCareCard extends StatelessWidget {
-  final String title;
-  const _SelfCareCard({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 160,
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8F5E9),
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromRGBO(0, 0, 0, 0.07),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // Illustration fills top portion
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-            child: SizedBox(
-              width: 160,
-              height: 160,
-              child: CustomPaint(painter: _DoctorIllustrationPainter()),
-            ),
-          ),
-
-          // Play button top-right
-          Positioned(
-            top: 10,
-            right: 10,
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: Colors.white.withAlpha(230),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(30),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.play_arrow_rounded,
-                color: Color(0xFF1A1A2E),
-                size: 20,
-              ),
-            ),
-          ),
-
-          // Title at bottom
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              decoration: const BoxDecoration(
-                color: Color(0xFFE8F5E9),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(14),
-                ),
-              ),
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1A1A2E),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 // ─── DOCTOR ILLUSTRATION PAINTER ─────────────────────────────────────────────
