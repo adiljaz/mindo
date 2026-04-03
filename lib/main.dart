@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -22,9 +24,755 @@ class MindoApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2D6A9F)),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      home: const SplashScreen(),
     );
   }
+}
+
+// ─── SPLASH SCREEN ────────────────────────────────────────────────────────────
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _entryController;
+  late AnimationController _shimmerController;
+  late AnimationController _ringController;
+  late AnimationController _exitController;
+
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _opacityAnimation;
+  late Animation<double> _blurAnimation;
+  late Animation<double> _ring1Scale;
+  late Animation<double> _ring1Opacity;
+  late Animation<double> _ring2Scale;
+  late Animation<double> _ring2Opacity;
+  late Animation<double> _shimmerAnimation;
+  late Animation<double> _exitScale;
+  late Animation<double> _exitOpacity;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Entry animation: 0.8s
+    _entryController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    // Shimmer glow sweep
+    _shimmerController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    // Ripple rings
+    _ringController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+
+    // Exit animation
+    _exitController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+
+    // --- Entry ---
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 0.0,
+          end: 1.08,
+        ).chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 70,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.08,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeOutBack)),
+        weight: 30,
+      ),
+    ]).animate(_entryController);
+
+    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _entryController,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+      ),
+    );
+
+    _blurAnimation = Tween<double>(begin: 20.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _entryController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
+    );
+
+    // --- Shimmer sweep ---
+    _shimmerAnimation = Tween<double>(begin: -1.0, end: 2.0).animate(
+      CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut),
+    );
+
+    // --- Ripple rings ---
+    _ring1Scale = Tween<double>(begin: 1.0, end: 2.2).animate(
+      CurvedAnimation(
+        parent: _ringController,
+        curve: const Interval(0.0, 1.0, curve: Curves.easeOut),
+      ),
+    );
+    _ring1Opacity = Tween<double>(begin: 0.5, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _ringController,
+        curve: const Interval(0.0, 1.0, curve: Curves.easeOut),
+      ),
+    );
+    _ring2Scale = Tween<double>(begin: 1.0, end: 1.8).animate(
+      CurvedAnimation(
+        parent: _ringController,
+        curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
+      ),
+    );
+    _ring2Opacity = Tween<double>(begin: 0.35, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _ringController,
+        curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
+      ),
+    );
+
+    // --- Exit ---
+    _exitScale = Tween<double>(
+      begin: 1.0,
+      end: 1.15,
+    ).animate(CurvedAnimation(parent: _exitController, curve: Curves.easeIn));
+    _exitOpacity = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _exitController, curve: Curves.easeIn));
+
+    _startSequence();
+  }
+
+  Future<void> _startSequence() async {
+    // 1. Entry pop-in (800ms)
+    await _entryController.forward();
+
+    // 2. Shimmer + rings together (1200ms + 1000ms)
+    _shimmerController.forward();
+    _ringController.forward();
+
+    // Wait for shimmer and rings to complete
+    await Future.delayed(const Duration(milliseconds: 1200));
+
+    // 3. Exit animation (500ms) - smooth transition
+    await _exitController.forward();
+
+    // Navigate after exit animation completes
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (_, animation, __) =>
+            FadeTransition(opacity: animation, child: const OnboardingScreen()),
+        transitionDuration: const Duration(milliseconds: 400),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _entryController.dispose();
+    _shimmerController.dispose();
+    _ringController.dispose();
+    _exitController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const logoSize = 160.0;
+    const primaryColor = Color(0xFF2D6A9F);
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFFFFF),
+      body: Center(
+        child: AnimatedBuilder(
+          animation: Listenable.merge([
+            _entryController,
+            _shimmerController,
+            _ringController,
+            _exitController,
+          ]),
+          builder: (context, child) {
+            final entryOpacity = _opacityAnimation.value;
+            final entryScale = _scaleAnimation.value;
+            final exitScale =
+                _exitController.isAnimating || _exitController.isCompleted
+                ? _exitScale.value
+                : 1.0;
+            final exitOpacity =
+                _exitController.isAnimating || _exitController.isCompleted
+                ? _exitOpacity.value
+                : 1.0;
+
+            return Opacity(
+              opacity: (entryOpacity * exitOpacity).clamp(0.0, 1.0),
+              child: Transform.scale(
+                scale: entryScale * exitScale,
+                child: SizedBox(
+                  width: logoSize * 2.5,
+                  height: logoSize * 2.5,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Ripple ring 1
+                      Transform.scale(
+                        scale: _ring1Scale.value,
+                        child: Opacity(
+                          opacity: _ring1Opacity.value,
+                          child: Container(
+                            width: logoSize,
+                            height: logoSize,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: primaryColor, width: 2),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Ripple ring 2
+                      Transform.scale(
+                        scale: _ring2Scale.value,
+                        child: Opacity(
+                          opacity: _ring2Opacity.value,
+                          child: Container(
+                            width: logoSize,
+                            height: logoSize,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: primaryColor,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Glow backdrop
+                      Container(
+                        width: logoSize + 40,
+                        height: logoSize + 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: primaryColor.withAlpha(25),
+                              blurRadius: 60,
+                              spreadRadius: 20,
+                            ),
+                            BoxShadow(
+                              color: primaryColor.withAlpha(15),
+                              blurRadius: 100,
+                              spreadRadius: 40,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Logo circle with shimmer
+                      ClipOval(
+                        child: Container(
+                          width: logoSize,
+                          height: logoSize,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFFF2F4F7),
+                          ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(28),
+                                child: Image.asset(
+                                  'assets/app logo.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                              // Shimmer sweep overlay
+                              if (_shimmerController.isAnimating ||
+                                  _shimmerController.isCompleted)
+                                Positioned.fill(
+                                  child: Transform.translate(
+                                    offset: Offset(
+                                      _shimmerAnimation.value * logoSize,
+                                      0,
+                                    ),
+                                    child: Container(
+                                      width: logoSize * 0.4,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.white.withAlpha(0),
+                                            Colors.white.withAlpha(80),
+                                            Colors.white.withAlpha(0),
+                                          ],
+                                          stops: const [0.0, 0.5, 1.0],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+// ─── ONBOARDING SCREEN ──────────────────────────────────────────────────────────
+class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({super.key});
+
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen>
+    with TickerProviderStateMixin {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+
+  late AnimationController _cardController;
+  late AnimationController _textController;
+  late AnimationController _floatController;
+
+  late Animation<double> _cardScale;
+  late Animation<double> _cardOpacity;
+  late Animation<Offset> _cardSlide;
+  late Animation<double> _titleOpacity;
+  late Animation<Offset> _titleSlide;
+  late Animation<double> _descOpacity;
+  late Animation<Offset> _descSlide;
+  late Animation<double> _floatAnimation;
+
+  static const Color primaryBlue = Color(0xFF2D6A9F);
+  static const Color lightBlue = Color(0xFFE8F4FC);
+  static const Color darkBlue = Color(0xFF1A4A73);
+
+  final List<_OnboardingData> _pages = const [
+    _OnboardingData(
+      imageUrl:
+          'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=600&q=80',
+      title: 'Talk Anonymously',
+      description:
+          'Connect with compassionate listeners who are here for you. Share freely, without judgment.',
+      icon: Icons.chat_bubble_outline,
+    ),
+    _OnboardingData(
+      imageUrl:
+          'https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=600&q=80',
+      title: 'Expert Care & AI',
+      description:
+          'Professional counselors and Zuri AI — your personal mental health companion.',
+      icon: Icons.favorite_outline,
+    ),
+    _OnboardingData(
+      imageUrl:
+          'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=600&q=80',
+      title: 'Track Your Mood',
+      description:
+          'Log your emotions daily and discover patterns in your wellness journey.',
+      icon: Icons.trending_up,
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _cardController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _textController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _floatController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+
+    _floatAnimation = Tween<double>(begin: -6, end: 6).animate(
+      CurvedAnimation(parent: _floatController, curve: Curves.easeInOutSine),
+    );
+
+    _setupAnimations();
+    _playAnimations();
+  }
+
+  void _setupAnimations() {
+    _cardScale = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _cardController, curve: Curves.easeOutBack),
+    );
+    _cardOpacity = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _cardController, curve: Curves.easeOut));
+    _cardSlide = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _cardController, curve: Curves.easeOutCubic),
+        );
+    _titleOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _textController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
+    );
+    _titleSlide = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _textController, curve: Curves.easeOutCubic),
+        );
+    _descOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _textController,
+        curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
+      ),
+    );
+    _descSlide = Tween<Offset>(begin: const Offset(0, 0.4), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _textController,
+            curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
+          ),
+        );
+  }
+
+  Future<void> _playAnimations() async {
+    _cardController.forward(from: 0);
+    await Future.delayed(const Duration(milliseconds: 150));
+    _textController.forward(from: 0);
+  }
+
+  void _nextPage() {
+    if (_currentPage < _pages.length - 1) {
+      _cardController.reverse();
+      _textController.reverse();
+      Future.delayed(const Duration(milliseconds: 250), () {
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeInOut,
+        );
+      });
+    } else {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (_, animation, __) =>
+              FadeTransition(opacity: animation, child: const HomeScreen()),
+          transitionDuration: const Duration(milliseconds: 500),
+        ),
+      );
+    }
+  }
+
+  void _skip() {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (_, animation, __) =>
+            FadeTransition(opacity: animation, child: const HomeScreen()),
+        transitionDuration: const Duration(milliseconds: 400),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _cardController.dispose();
+    _textController.dispose();
+    _floatController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Column(
+              children: [
+                // Skip button
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 12, right: 20),
+                    child: TextButton(
+                      onPressed: _skip,
+                      child: const Text(
+                        'Skip',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: primaryBlue,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Page content
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    onPageChanged: (index) {
+                      setState(() => _currentPage = index);
+                      _playAnimations();
+                    },
+                    itemCount: _pages.length,
+                    itemBuilder: (context, index) =>
+                        _buildPageContent(index, constraints),
+                  ),
+                ),
+
+                // Bottom section
+                _buildBottomSection(constraints),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPageContent(int index, BoxConstraints constraints) {
+    final page = _pages[index];
+    final imageSize = constraints.maxWidth * 0.65;
+    final isSmallScreen = constraints.maxHeight < 700;
+
+    return AnimatedBuilder(
+      animation: Listenable.merge([
+        _cardController,
+        _textController,
+        _floatController,
+      ]),
+      builder: (context, _) {
+        return SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                SizedBox(height: isSmallScreen ? 20 : 40),
+
+                // Image container with white highlight
+                SlideTransition(
+                  position: _cardSlide,
+                  child: FadeTransition(
+                    opacity: _cardOpacity,
+                    child: ScaleTransition(
+                      scale: _cardScale,
+                      child: Transform.translate(
+                        offset: Offset(0, _floatAnimation.value),
+                        child: Container(
+                          width: imageSize.clamp(200, 320),
+                          height: imageSize.clamp(200, 320),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: primaryBlue.withAlpha(40),
+                                blurRadius: 60,
+                                spreadRadius: 10,
+                                offset: const Offset(0, 20),
+                              ),
+                              BoxShadow(
+                                color: primaryBlue.withAlpha(20),
+                                blurRadius: 100,
+                                spreadRadius: 30,
+                                offset: const Offset(0, 40),
+                              ),
+                            ],
+                            border: Border.all(color: Colors.white, width: 8),
+                          ),
+                          child: ClipOval(
+                            child: CachedNetworkImage(
+                              imageUrl: page.imageUrl,
+                              fit: BoxFit.cover,
+                              placeholder: (_, __) => Shimmer.fromColors(
+                                baseColor: lightBlue,
+                                highlightColor: Colors.white,
+                                child: Container(color: lightBlue),
+                              ),
+                              errorWidget: (_, __, ___) => Container(
+                                color: lightBlue,
+                                child: Icon(
+                                  page.icon,
+                                  color: primaryBlue,
+                                  size: 60,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: isSmallScreen ? 30 : 50),
+
+                // Title
+                SlideTransition(
+                  position: _titleSlide,
+                  child: FadeTransition(
+                    opacity: _titleOpacity,
+                    child: Text(
+                      page.title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: darkBlue,
+                        height: 1.2,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Description
+                SlideTransition(
+                  position: _descSlide,
+                  child: FadeTransition(
+                    opacity: _descOpacity,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        page.description,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 14 : 16,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.grey[600],
+                          height: 1.6,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBottomSection(BoxConstraints constraints) {
+    final isSmallScreen = constraints.maxHeight < 700;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        bottom: isSmallScreen ? 20 : 32,
+        top: isSmallScreen ? 16 : 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Dot indicators
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(_pages.length, (index) {
+              final isActive = _currentPage == index;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: isActive ? 24 : 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: isActive ? primaryBlue : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              );
+            }),
+          ),
+
+          SizedBox(height: isSmallScreen ? 20 : 28),
+
+          // CTA Button
+          SizedBox(
+            width: double.infinity,
+            height: isSmallScreen ? 50 : 54,
+            child: ElevatedButton(
+              onPressed: _nextPage,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryBlue,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _currentPage == _pages.length - 1
+                        ? 'Get Started'
+                        : 'Continue',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward, size: 18),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Data model ──────────────────────────────────────────────────────────────
+class _OnboardingData {
+  final String imageUrl;
+  final String title;
+  final String description;
+  final IconData icon;
+
+  const _OnboardingData({
+    required this.imageUrl,
+    required this.title,
+    required this.description,
+    required this.icon,
+  });
 }
 
 // ─── HOME SCREEN ─────────────────────────────────────────────────────────────
@@ -88,182 +836,77 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: const Color(0xFFF2F4F7),
       extendBody: true,
       body: SafeArea(bottom: false, child: _buildPage(_selectedIndex)),
-      bottomNavigationBar: CurvedNavigationBar(
-        key: _navKey,
-        index: _selectedIndex,
-        height: 65,
-        color: Colors.white,
-        backgroundColor: Colors.transparent,
-        buttonBackgroundColor: Colors.white,
-        animationDuration: const Duration(milliseconds: 300),
-        animationCurve: Curves.easeInOut,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        items: [
-          _navIcon(Icons.home_rounded, 'Home', _selectedIndex == 0),
-          _navIcon(Icons.view_column_rounded, 'Journal', _selectedIndex == 1),
-          _ZuriNavIcon(isSelected: _selectedIndex == 2),
-          _navIcon(
-            Icons.medical_services_outlined,
-            'Experts',
-            _selectedIndex == 3,
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CurvedNavigationBar(
+            key: _navKey,
+            index: _selectedIndex,
+            height: 55,
+            color: Colors.white,
+            backgroundColor: Colors.transparent,
+            buttonBackgroundColor: const Color(0xFF2D6A9F),
+            animationDuration: const Duration(milliseconds: 300),
+            animationCurve: Curves.easeInOut,
+            onTap: (index) => setState(() => _selectedIndex = index),
+            items: [
+              _navIconOnly(Icons.home_rounded, _selectedIndex == 0),
+              _navIconOnly(Icons.view_column_rounded, _selectedIndex == 1),
+              SizedBox(
+                width: 44,
+                height: 44,
+                child: Image.asset('assets/zuri.png', fit: BoxFit.contain),
+              ),
+              _navIconOnly(
+                Icons.medical_services_outlined,
+                _selectedIndex == 3,
+              ),
+              _navIconOnly(Icons.people_alt_outlined, _selectedIndex == 4),
+            ],
           ),
-          _navIcon(Icons.people_alt_outlined, 'Community', _selectedIndex == 4),
+          _staticNavLabels(),
         ],
       ),
     );
   }
 
-  Widget _navIcon(IconData icon, String label, bool isSelected) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          icon,
-          size: 24,
-          color: isSelected ? const Color(0xFF2D6A9F) : const Color(0xFF9CA3AF),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 9,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected
-                ? const Color(0xFF2D6A9F)
-                : const Color(0xFF9CA3AF),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ─── ZURI CENTRE NAV ICON ─────────────────────────────────────────────────────
-// No background container — avatar drawn directly with CustomPaint
-class _ZuriNavIcon extends StatelessWidget {
-  final bool isSelected;
-  const _ZuriNavIcon({required this.isSelected});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: 44,
-          height: 44,
-          child: CustomPaint(painter: _ZuriAvatarPainter()),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          'Ask Zuri',
-          style: TextStyle(
-            fontSize: 9,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected
-                ? const Color(0xFF2D6A9F)
-                : const Color(0xFF9CA3AF),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ZuriAvatarPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-
-    // Body cloud blob
-    final bodyPath = Path()
-      ..moveTo(w * 0.50, h * 0.05)
-      ..cubicTo(w * 0.85, h * 0.00, w * 1.05, h * 0.30, w * 0.95, h * 0.60)
-      ..cubicTo(w * 0.90, h * 0.85, w * 0.65, h * 1.00, w * 0.50, h * 1.00)
-      ..cubicTo(w * 0.35, h * 1.00, w * 0.10, h * 0.85, w * 0.05, h * 0.60)
-      ..cubicTo(w * -0.05, h * 0.30, w * 0.15, h * 0.00, w * 0.50, h * 0.05)
-      ..close();
-    canvas.drawPath(bodyPath, Paint()..color = const Color(0xFFB0D8F5));
-
-    // Ears
-    canvas.drawOval(
-      Rect.fromLTWH(w * 0.04, h * 0.02, w * 0.20, h * 0.22),
-      Paint()..color = const Color(0xFF8EC8EE),
-    );
-    canvas.drawOval(
-      Rect.fromLTWH(w * 0.76, h * 0.02, w * 0.20, h * 0.22),
-      Paint()..color = const Color(0xFF8EC8EE),
-    );
-    // Inner ears
-    canvas.drawOval(
-      Rect.fromLTWH(w * 0.08, h * 0.06, w * 0.12, h * 0.13),
-      Paint()..color = const Color(0xFFFFB3C6),
-    );
-    canvas.drawOval(
-      Rect.fromLTWH(w * 0.80, h * 0.06, w * 0.12, h * 0.13),
-      Paint()..color = const Color(0xFFFFB3C6),
-    );
-
-    // Eyes
-    canvas.drawCircle(
-      Offset(w * 0.34, h * 0.48),
-      w * 0.085,
-      Paint()..color = const Color(0xFF1A1A2E),
-    );
-    canvas.drawCircle(
-      Offset(w * 0.66, h * 0.48),
-      w * 0.085,
-      Paint()..color = const Color(0xFF1A1A2E),
-    );
-    // Eye shine
-    canvas.drawCircle(
-      Offset(w * 0.37, h * 0.44),
-      w * 0.030,
-      Paint()..color = Colors.white,
-    );
-    canvas.drawCircle(
-      Offset(w * 0.69, h * 0.44),
-      w * 0.030,
-      Paint()..color = Colors.white,
-    );
-
-    // Nose
-    canvas.drawOval(
-      Rect.fromLTWH(w * 0.43, h * 0.58, w * 0.14, h * 0.09),
-      Paint()..color = const Color(0xFFFFB3C6),
-    );
-
-    // Mouth
-    final mouthPath = Path()
-      ..moveTo(w * 0.38, h * 0.70)
-      ..quadraticBezierTo(w * 0.50, h * 0.80, w * 0.62, h * 0.70);
-    canvas.drawPath(
-      mouthPath,
-      Paint()
-        ..color = const Color(0xFF1A1A2E)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.8
-        ..strokeCap = StrokeCap.round,
-    );
-
-    // Cheeks
-    canvas.drawCircle(
-      Offset(w * 0.22, h * 0.60),
-      w * 0.10,
-      Paint()..color = const Color.fromRGBO(255, 179, 198, 0.55),
-    );
-    canvas.drawCircle(
-      Offset(w * 0.78, h * 0.60),
-      w * 0.10,
-      Paint()..color = const Color.fromRGBO(255, 179, 198, 0.55),
+  Widget _navIconOnly(IconData icon, bool isSelected) {
+    return Icon(
+      icon,
+      size: 24,
+      color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
     );
   }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  Widget _staticNavLabels() {
+    final labels = ['Home', 'Journal', 'Ask Zuri', 'Experts', 'Community'];
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Transform.translate(
+        offset: const Offset(0, -4),
+        child: Row(
+          children: List.generate(5, (index) {
+            final isSelected = _selectedIndex == index;
+            return Expanded(
+              child: Center(
+                child: Text(
+                  labels[index],
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected
+                        ? const Color(0xFF2D6A9F)
+                        : const Color(0xFF9CA3AF),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
 }
 
 // ─── STUB PAGE ────────────────────────────────────────────────────────────────
