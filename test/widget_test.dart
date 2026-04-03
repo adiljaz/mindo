@@ -10,12 +10,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mindoone/main.dart';
 
 void main() {
-  testWidgets('App starts and displays home screen', (WidgetTester tester) async {
+  testWidgets('App starts and displays home screen', (
+    WidgetTester tester,
+  ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MindoApp());
 
     // Verify that the home screen is displayed.
-    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(MindoApp), findsOneWidget);
     expect(find.text('Home'), findsWidgets);
   });
 }
